@@ -1,5 +1,5 @@
 # Complexity
-Python program to calculate various types of graph complexity for application in nanomaterial complexity analysis
+Python program to calculate various types of graph complexity for application in nanoparticle complexity analysis
 
 ## Getting Started
 Clone the repository on the command line
