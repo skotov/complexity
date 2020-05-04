@@ -1,6 +1,3 @@
-def readCsv(filename):
-    pass
-
 # Parameters: 
 #     nodeId -- a number
 #     graphEdges -- a list of tuples, i.e. [(1,2), (2, 3), (3,1)]
@@ -58,9 +55,9 @@ def calculateAvv(n, graphEdges, graphNeighbors):
     # this graph will contain all nodes that are reachable from n
     # ----
 
-    # This is just a list, but treating as a LIFO stack, the driving data structure behind 
+    # This is just a list, but treating as a FIFO queu, the driving data structure behind 
     # the breadth first search algorithm below. Initialized to contain only the origin node
-    nodeStack = [n] 
+    nodeQueue = [n] 
 
     # A set of Nodes (Using set instead of list for easy lookup and deduping)
     visitedNodes = set()
@@ -72,15 +69,15 @@ def calculateAvv(n, graphEdges, graphNeighbors):
     
     # run breadth first search to explore the full graph and get each node's distance to
     # the origin node, n. We'll then use the depth in the AVV calculation
-    while (len(nodeStack) > 0):
+    while (len(nodeQueue) > 0):
         # pop a node from the stack
-        currentNode = nodeStack.pop()
+        currentNode = nodeQueue.pop(0)
         # check whether we have visited this node yet
         if (currentNode not in visitedNodes):
             # explore surrounding nodes
             adjacentNodes = graphNeighbors[currentNode]            
             for node in adjacentNodes:
-                nodeStack.append(node)
+                nodeQueue.append(node)
                 # note the depth of surrounding nodes.
                 if node not in depthLookup: # this check prevents overwriting the min depth
                     depthLookup[node] = depthLookup[currentNode] + 1
@@ -94,8 +91,7 @@ def calculateAvv(n, graphEdges, graphNeighbors):
     for node in depthLookup:
         adjacentNodes = graphNeighbors[node]
         nodeDepth = depthLookup[node]
-        #print "   depth =", nodeDepth, " count =", len(adjacentNodes), "adding", len(adjacentNodes) / pow(2, nodeDepth)
-        avv += len(adjacentNodes) / pow(2, nodeDepth)
+        avv += float(len(adjacentNodes)) / float(2**nodeDepth)
     return avv
 
 # Parameters
@@ -103,15 +99,12 @@ def calculateAvv(n, graphEdges, graphNeighbors):
 def getAVVs(edges):
     nodes = getUniqueNodesFromEdges(edges)
     neighbors = getNeighborMapping(edges, nodes)
-    #print "neighbors is", neighbors
     avvMapping = {}
     for n in nodes:
         avvMapping[n] = calculateAvv(n, edges, neighbors)
     return avvMapping
 
 def program():
-    # read csv and initialize program data structures using the contents
-
     test1 = [(1,1)] # each test is a graph as described by a set of edges
     result1 = {1:1} # maps nodeId --> AVV
     if (result1 != getAVVs(test1)):
@@ -120,31 +113,32 @@ def program():
     test2PartA = [(1, 2), (2, 1)]
     test2PartB = [(1,2)]
     result2 = {1: 1, 2: 1}
-    output = getAVVs(test2PartB)
-    if (result2 != getAVVs(test2PartA) or result2 !=  result2 != getAVVs(test2PartB)):
-        print "Failed Test 2"
-    
+    if (result2 != getAVVs(test2PartA)):
+        print "Failed Test 2 Part A"
+        print "Expected", result2
+        print "Received", getAVVs(test2PartA)
+    if (result2 != getAVVs(test2PartB)):
+        print "Failed Test 2 Part B"
 
     test3 = [(1, 2), (2, 3), (3, 1)]
     result3 = {1: 4, 2: 4, 3: 4}
     if (result3 != getAVVs(test3)):
         print "Failed Test 3"
-    
-    
+
     test4PartA = [(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (5, 4)]
     test4PartB = [(1, 2), (5, 4), (0, 1), (1, 5), (1, 3), (3, 4), (2, 3)] # same as above, but shuffled
     test4PartC = [(0, 1), (1, 0), (1, 2), (1, 3), (1, 5), (2, 3), (3, 2), (4, 3), (3, 4), (4, 5), (5, 4)] # same as above, with bidirectional edges
     test4PartD = [(0, 1), (2, 3), (1, 2), (1, 3), (1, 5), (0, 1), (2, 3), (3, 4), (5, 4), (3, 4)] # same as above, with duplicate edges shuffled in
     result4 = {0: 5, 1: 8.5, 2: 6.75, 3: 7.75, 4: 6.125, 5: 6.5}
     if (result4 != getAVVs(test4PartA)):
-        print "Failed Test 4"
-        #rint "Expected: ", result4,
-        #print "Received:", getAVVs(test4PartA)
-
-    print getAVVs(test4PartA)
+        print "Failed Test 4 Part A"
+    if (result4 != getAVVs(test4PartB)):
+        print "Failed Test 4 Part B"
+    if (result4 != getAVVs(test4PartC)):
+        print "Failed Test 4 Part C"
+    if (result4 != getAVVs(test4PartD)):
+        print "Failed Test 4 Part D"
     
-    test5 = []
-    result5 = {}
 
 if __name__ == "__main__": 
     filename = "test.csv"
