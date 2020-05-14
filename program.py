@@ -122,26 +122,30 @@ def program():
     if (result1 != getAVVs(test1)):
         print "Failed Test 1"
 
-    test2PartA = [(1,2)] 
-    result2A = {1: 1.5, 2: 1.5}
-    if (result2A != getAVVs(test2PartA)):
-        print "Failed Test 2 Part A"
+    test2 = [(1,2)] 
+    result2 = {1: 1.5, 2: 1.5}
+    if (result2 != getAVVs(test2)):
+        print "Failed Test 2"
 
-    test2PartB = [(1, 2), (2, 1)] # test bidirectional 
-    result2B = {1: 3, 2: 3}
-    if (result2B != getAVVs(test2PartB)):
-        print "Failed Test 2 Part B"
-
-    test2PartC = [(1, 1), (1, 2), (2, 1)] # test that self-loops count for two
-    result2C = {1: 5, 2: 4}
-    if (result2C != getAVVs(test2PartC)):
-        print "Failed Test 2 Part C"
-    return
-
-    test3 = [(1, 2), (2, 3), (3, 1)]
-    result3 = {1: 4, 2: 4, 3: 4}
+    test3 = [(1, 2), (2, 1)] # test bidirectional 
+    result3 = {1: 3, 2: 3}
     if (result3 != getAVVs(test3)):
         print "Failed Test 3"
+
+    test4 = [(1, 1), (1, 2), (2, 1)] # test that self-loops count for two
+    result4 = {1: 5, 2: 4}
+    if (result4 != getAVVs(test4)):
+        print "Failed Test 4"
+
+    test5 = [(1, 1), (1, 2), (1, 1)] # test that two self-loops count for four
+    result5 = {1: 5.5, 2: 3.5}
+    if (result5 != getAVVs(test5)):
+        print "Failed Test 5"
+
+    test6 = [(1, 2), (2, 3), (3, 1)]
+    result6 = {1: 4, 2: 4, 3: 4}
+    if (result6 != getAVVs(test6)):
+        print "Failed Test 6"
 
     test4PartA = [(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (5, 4)]
     test4PartB = [(1, 2), (5, 4), (0, 1), (1, 5), (1, 3), (3, 4), (2, 3)] # same as above, but shuffled
@@ -150,7 +154,6 @@ def program():
         print "Failed Test 4 Part A"
     if (result4 != getAVVs(test4PartB)):
         print "Failed Test 4 Part B"
-    
     
 
 if __name__ == "__main__": 
