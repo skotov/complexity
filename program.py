@@ -1,3 +1,6 @@
+import sys
+import csv
+
 # Parameters: 
 #     nodeId -- a number
 #     graphEdges -- a list of tuples, i.e. [(1,2), (2, 3), (3,1)]
@@ -108,6 +111,8 @@ def calculateAvv(n, graphEdges, graphNeighbors):
 
 # Parameters
 #   edges -- a list of tuples, i.e. [(1,2), (2, 3), (3,1)] representing the edges in a graph
+# Returns
+#   a mapping of nodeId --> it's AVV
 def getAVVs(edges):
     nodes = getUniqueNodesFromEdges(edges)
     neighbors = getNeighborMapping(edges, nodes)
@@ -116,48 +121,97 @@ def getAVVs(edges):
         avvMapping[n] = calculateAvv(n, edges, neighbors)
     return avvMapping
 
-def program():
+def testAvvs():
+    print "Testing Avv calculation..."
+    testsFailed = 0
+
     test1 = [(1,1)] # each test is a graph as described by a set of edges
     result1 = {1:2} # maps nodeId --> AVV
     if (result1 != getAVVs(test1)):
         print "Failed Test 1"
+        testsFailed +=1
 
     test2 = [(1,2)] 
     result2 = {1: 1.5, 2: 1.5}
     if (result2 != getAVVs(test2)):
         print "Failed Test 2"
+        testsFailed +=1
 
     test3 = [(1, 2), (2, 1)] # test bidirectional 
     result3 = {1: 3, 2: 3}
     if (result3 != getAVVs(test3)):
         print "Failed Test 3"
+        testsFailed +=1
 
     test4 = [(1, 1), (1, 2), (2, 1)] # test that self-loops count for two
     result4 = {1: 5, 2: 4}
     if (result4 != getAVVs(test4)):
         print "Failed Test 4"
+        testsFailed +=1
 
     test5 = [(1, 1), (1, 2), (1, 1)] # test that two self-loops count for four
     result5 = {1: 5.5, 2: 3.5}
     if (result5 != getAVVs(test5)):
         print "Failed Test 5"
+        testsFailed +=1
 
     test6 = [(1, 2), (2, 3), (3, 1)]
     result6 = {1: 4, 2: 4, 3: 4}
     if (result6 != getAVVs(test6)):
         print "Failed Test 6"
+        testsFailed +=1
 
-    test4PartA = [(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (5, 4)]
-    test4PartB = [(1, 2), (5, 4), (0, 1), (1, 5), (1, 3), (3, 4), (2, 3)] # same as above, but shuffled
-    result4 = {0: 5, 1: 8.5, 2: 6.75, 3: 7.75, 4: 6.125, 5: 6.5}
-    if (result4 != getAVVs(test4PartA)):
-        print "Failed Test 4 Part A"
-    if (result4 != getAVVs(test4PartB)):
-        print "Failed Test 4 Part B"
+    test7PartA = [(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (5, 4)]
+    test7PartB = [(1, 2), (5, 4), (0, 1), (1, 5), (1, 3), (3, 4), (2, 3)] # same as above, but shuffled
+    result7 = {0: 5, 1: 8.5, 2: 6.75, 3: 7.75, 4: 6.125, 5: 6.5}
+    if (result7 != getAVVs(test7PartA)):
+        print "Failed Test 7 Part A"
+        testsFailed +=1
+    if (result7 != getAVVs(test7PartB)):
+        print "Failed Test 7 Part B"
+        testsFailed +=1
     
+    test8 = [(1,2), (2,3), (3,4), (4, 2)]
+    result8 = {1: 3.5, 2: 5.5, 3: 4.75, 4: 4.75}
+    print getAVVs(test8)
+    if (result8 != getAVVs(test8)):
+        print "Failed Test 8"
+        testsFailed += 1
+    
+    # after done testing, log test result
+    if testsFailed == 0:
+        print "...all tests passed!"
+    elif testsFailed == 1:
+        print "...failed 1 test total"
+    else:
+        print "...failed {} tests total".format(testsFailed)
+    
+# Parameters
+#   filename - file name as string
+# Returns
+#   the edges in the csv file -- a list of tuples i.e. [(1,2), (2, 3), (3,1)]
+def readCsv(filename):
+    edgeSourceIndex = 0
+    edgeTargetIndex = 1
+    edges = []
+    with open(filename) as csvfile:
+        reader = csv.reader(csvfile, delimiter=';')
+        reader.next() # skip the first line
+        for row in reader:
+            edge = (int(row[edgeSourceIndex]), int(row[edgeTargetIndex]))
+            edges.append(edge)
+    return edges
 
 if __name__ == "__main__": 
-    filename = "test.csv"
-    program()
+    # if no arguments provided, simply run the test suite
+    if (len(sys.argv) == 1):
+        testAvvs()
+    else:
+        filename = sys.argv[1]
+        # add in the csv file ending if user did not type it
+        if filename[-4:] != '.csv':
+            filename = filename + '.csv'
+        edges = readCsv(filename)
+        print getAVVs(edges)
 
     

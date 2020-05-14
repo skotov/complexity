@@ -1,0 +1,5 @@
+Source;Target;Type;Id;Label
+0;0;Undirected;0;
+1;2;Undirected;1;
+2;3;Undirected;2;
+3;1;Undirected;3;
