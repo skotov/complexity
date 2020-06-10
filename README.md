@@ -31,11 +31,11 @@ To run with a custom input, execute this command in the terminal:
 python program.py input1.csv
 ```
 
-This will calculate the AVC for the given input. The output for `input1.csv ` is
+This will calculate the AVC for the given input. The output for `input1.csv` is
 ```
 AVC calculated is 6.0
 ```
-The output for `input2.csv ` is
+The output for `input2.csv` is
 ```
 AVC calculated is 5.0
 ```
@@ -67,4 +67,5 @@ and `m` is the minimum distance from node A (note that nodes inaccessible from A
 The final AVV for node A is the sum of each node's contribution (including the contribution from A itself aka `m = 0`)
 
 ### Calculate AVC for the graph
-Once we have a list of all AVV values for each node in the graph, the AVC is a simple sum of all unique AVVs. The program uses a `Set()` to dedupe values and sums across them to produce the AVC.
+Once we have a list of all AVV values for each node in the graph, the AVC is a simple sum of all unique AVVs. This is done in the function called `getAVC()`, which takes the same input as `getAVVs()` - a list of tuples that represent the edges of a graph. 
+The function `getAVC()` first calls `getAVVs()`. It then takes the result of this call and dedupes the resulting values. It then calculates the AVC by summing together the unique values.
