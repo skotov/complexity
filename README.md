@@ -1,5 +1,5 @@
 # Complexity
-Python program to calculate various types of graph complexity for application in nanoparticle complexity analysis
+Python program to calculate the complexity index of nanoparticles as represented by an undirected graph
 
 ## Getting Started
 Clone the repository on the command line into your folder of choice
@@ -13,30 +13,38 @@ python program.py
 ```
 
 ### Test Suite
-This runs the program through a series of test cases, calculating AVV for each input. Assuming there are no bugs, this command should produce the following output:
+This runs the program through a series of test cases that independently test the AVV and AVC calculations. Assuming there are no bugs, this command should produce the following output:
 ```
-Begin testing Avv calculation...
+Testing AVV calculation...
+...all tests passed!
+Testing AVC calculation...
 ...all tests passed!
 ```
 
 ### Custom Input
 The program takes user input as a `.csv` file delimited by `;`. 
 
-The contents of the file should list out graph edges, where the first column is the edge Source, second column the edge Target (though all edges are treated as undirected and column names don't matter). See `input1.csv` (also in this repository) for an example. 
+The contents of the file should list out graph edges, where the first column is the edge Source, second column the edge Target (though all edges are treated as undirected and column names don't matter). See `input1.csv` and `input2.csv` (also in this repository) for examples. 
 
 To run with a custom input, execute this command in the terminal:
 ```
 python program.py input1.csv
 ```
 
-This will parse the csv, run the AVV calculation, and output the result as a dictionary in the format `<nodeId>: <avv>`. The output for `input.csv ` is
+This will calculate the AVC for the given input. The output for `input1.csv ` is
 ```
-{0: 2.0, 1: 4.0, 2: 4.0, 3: 4.0}
+AVC calculated is 6.0
+```
+The output for `input2.csv ` is
+```
+AVC calculated is 5.0
 ```
 
 ## Program Description
+The purpose of this program is to calculate graph complexity. It does this in two steps.
 
-The core function of interest in `getAVVs()`, which takes a list of tuples that represent the edges of a graph:
+### Calculate AVV for each node in the graph
+The AVV, or Augmented Vertex Valence, for each node is calculated in the function called `getAVVs()`, which takes a list of tuples that represent the edges of a graph. Here is a sample input:
 ```
 [(1,2), (2,3), (3,4), (4,2)]
 ```
@@ -50,5 +58,13 @@ By looking at the list of edges, the program deduces the nodes that exist on thi
 [1, 2, 3, 4]
 ```
 
-For each node, the program calculates the AVV score using the algorithm described in Randic and Plavsic's "On the Concept of Molecular Complexity". It does this using a modified breadth first search algorithm
+For each node, the program calculates the AVV score using the algorithm described in Randic and Plavsic's "On the Concept of Molecular Complexity". The AVV for node N is a sum of each graph node's "contribution" to the calculation:
+```
+contribution = n / 2^m
+```
+where `n` is the count of outgoing edges (note self-loops count for two outgoing edges)
+and `m` is the minimum distance from node A (note that nodes inaccessible from A do not count towards the contribution, even if included in the edge list)
+The final AVV for node A is the sum of each node's contribution (including the contribution from A itself aka `m = 0`)
 
+### Calculate AVC for the graph
+Once we have a list of all AVV values for each node in the graph, the AVC is a simple sum of all unique AVVs. The program uses a `Set()` to dedupe values and sums across them to produce the AVC.
