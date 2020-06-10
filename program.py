@@ -1,5 +1,6 @@
 import sys
 import csv
+from collections import deque
 
 # Parameters: 
 #     nodeId -- a number
@@ -72,7 +73,7 @@ def calculateAvv(n, graphEdges, graphNeighbors):
 
     # This is just a list, but treating as a FIFO queu, the driving data structure behind 
     # the breadth first search algorithm below. Initialized to contain only the origin node
-    nodeQueue = [n] 
+    nodeQueue = deque([n]) 
 
     # A set of Nodes (Using set instead of list for easy lookup and deduping)
     visitedNodes = set()
@@ -86,9 +87,10 @@ def calculateAvv(n, graphEdges, graphNeighbors):
     # the origin node, n. We'll then use the depth in the AVV calculation
     while (len(nodeQueue) > 0):
         # pop a node from the stack
-        currentNode = nodeQueue.pop(0)
+        currentNode = nodeQueue.popleft()
         # check whether we have visited this node yet
         if (currentNode not in visitedNodes):
+            #print "visiting", currentNode
             # explore surrounding nodes
             adjacentNodes = graphNeighbors[currentNode]            
             for node in adjacentNodes:
@@ -112,7 +114,7 @@ def calculateAvv(n, graphEdges, graphNeighbors):
 # Parameters
 #   edges -- a list of tuples, i.e. [(1,2), (2, 3), (3,1)] representing the edges in a graph
 # Returns
-#   a mapping of nodeId --> it's AVV
+#   a mapping of nodeId --> its AVV
 def getAVVs(edges):
     nodes = getUniqueNodesFromEdges(edges)
     neighbors = getNeighborMapping(edges, nodes)
@@ -121,8 +123,30 @@ def getAVVs(edges):
         avvMapping[n] = calculateAvv(n, edges, neighbors)
     return avvMapping
 
+# Parameters
+#   edges -- a list of tuples, i.e. [(1,2), (2, 3), (3,1)] representing the edges in a graph
+# Returns
+#   a mapping of nodeId --> it's AVV
+def getAVC(edges):
+    avvs = getAVVs(edges)
+    return getAVCFromAVVs(avvs)
+
+# Parameters
+#   avvs -- map of nodeId --> its AVV
+# Returns
+#   a sum of all unique AVVs in the mapping
+def getAVCFromAVVs(avvs):
+    sum = 0
+    # use a Set, which automatically dedupes, to collect all unique AVVs
+    uniqueAVVs = set()
+    for nodeId in avvs:
+        uniqueAVVs.add(avvs[nodeId])
+    for val in uniqueAVVs:
+        sum = sum + val
+    return sum
+
 def testAvvs():
-    print "Testing Avv calculation..."
+    print "Testing AVV calculation..."
     testsFailed = 0
 
     test1 = [(1,1)] # each test is a graph as described by a set of edges
@@ -173,9 +197,14 @@ def testAvvs():
     
     test8 = [(1,2), (2,3), (3,4), (4, 2)]
     result8 = {1: 3.5, 2: 5.5, 3: 4.75, 4: 4.75}
-    print getAVVs(test8)
     if (result8 != getAVVs(test8)):
         print "Failed Test 8"
+        testsFailed += 1
+
+    test9= [(1,2), (2,3), (3,4), (4, 5), (5, 1)]
+    result9 = {1: 5, 2: 5, 3: 5, 4: 5, 5: 5}
+    if (result9 != getAVVs(test9)):
+        print "Failed Test 9"
         testsFailed += 1
     
     # after done testing, log test result
@@ -185,7 +214,54 @@ def testAvvs():
         print "...failed 1 test total"
     else:
         print "...failed {} tests total".format(testsFailed)
+
+def testAvc():
+    print "Testing AVC calculation..."
+
+    # set the precision to 3 decimal places to match that of Randic and Plavsic
+    precision = 3
+
+    testsFailed = 0
+
+    graphA = [(1, 2), (2, 3), (3, 4), (4, 5)]
+    graphA_AVC = 11.438
+    if (round(getAVC(graphA), precision) != graphA_AVC):
+        print "Failed test A"
+        testsFailed +=1
     
+    graphB = [(1, 2), (2, 3), (3, 4), (2, 5)]
+    graphB_AVC = 16.125
+    if (round(getAVC(graphB), precision) != graphB_AVC):
+        print "Failed test B"
+        testsFailed +=1
+
+    graphC = [(1, 2), (2, 3), (2, 4), (2, 5)]
+    graphC_AVC = 9.75
+    if (round(getAVC(graphC), precision) != graphC_AVC):
+        print "Failed test C"
+        testsFailed +=1
+
+    graphD = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)]
+    graphD_AVC = 5
+    if (round(getAVC(graphD), precision) != graphD_AVC):
+        print "Failed test D"
+        testsFailed +=1
+    
+    graphE = [(1, 2), (2, 3), (3, 4), (2, 5), (5, 1)]
+    graphE_AVC = 19.625
+    if (round(getAVC(graphE), precision)  != graphE_AVC):
+        print "Failed test E"
+        testsFailed +=1
+    
+    # after done testing, log test result
+    if testsFailed == 0:
+        print "...all tests passed!"
+    elif testsFailed == 1:
+        print "...failed 1 test total"
+    else:
+        print "...failed {} tests total".format(testsFailed)
+
+
 # Parameters
 #   filename - file name as string
 # Returns
@@ -206,12 +282,13 @@ if __name__ == "__main__":
     # if no arguments provided, simply run the test suite
     if (len(sys.argv) == 1):
         testAvvs()
+        testAvc()
     else:
         filename = sys.argv[1]
         # add in the csv file ending if user did not type it
         if filename[-4:] != '.csv':
             filename = filename + '.csv'
         edges = readCsv(filename)
-        print getAVVs(edges)
+        print "AVC calculated is", getAVC(edges)
 
     
